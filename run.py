@@ -8,13 +8,15 @@ from PySide6.QtCore import QObject, Slot, QUrl
 from PySide6.QtQuickControls2 import QQuickStyle
 
 def get_base_path():
+    """Возвращает путь к папке, где лежит исполняемый файл или скрипт (для внешних изменяемых файлов)"""
     if getattr(sys, 'frozen', False):
         return os.path.dirname(sys.executable)
     return os.path.dirname(os.path.abspath(__file__))
 
 def get_resource_path():
+    """Возвращает путь к упакованным внутренним ресурсам (QML, шрифты, иконки)"""
     if getattr(sys, 'frozen', False):
-        return os.path.dirname(sys.executable)
+        return getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
     return os.path.dirname(os.path.abspath(__file__))
 
 class DocumentBackend(QObject):
@@ -25,8 +27,10 @@ class DocumentBackend(QObject):
         self.last_saved_text = ""
         self.base_path = get_base_path()
         self.resource_path = get_resource_path()
+        
+        # Конфигурационные файлы и темы теперь ищутся строго в base_path (рядом с .exe файлом)
         self.settings_path = os.path.join(self.base_path, "settings.json")
-        self.theme_path = os.path.join(self.resource_path, "theme.json")
+        self.theme_path = os.path.join(self.base_path, "theme.json")
         self.theme = self.load_theme()
         self.working_dir = self.load_working_dir()
 
@@ -95,7 +99,9 @@ class DocumentBackend(QObject):
                     saved_dir = data.get("working_dir")
                     self.full_screen_width = data.get("full_screen_width", 700)
                     theme_file = data.get("theme", "theme.json")
-                    self.theme_path = os.path.join(self.resource_path, theme_file)
+                    
+                    # Изменено: Файл темы ищется во внешней папке рядом с исполняемым файлом
+                    self.theme_path = os.path.join(self.base_path, theme_file)
                     self.theme = self.load_theme()
                     if saved_dir and os.path.exists(saved_dir):
                         return os.path.normpath(saved_dir)

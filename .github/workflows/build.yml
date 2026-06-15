@@ -27,10 +27,12 @@ jobs:
           pip install PySide6 pyinstaller
       - name: Build Windows
         run: |
-          python -m PyInstaller --noconfirm --onedir --windowed --icon="logo.ico" --name="abcdef-editor" %EXCLUDE_MODULES% --add-data "main.qml;." --add-data "iAWriterDuoV.ttf;." --add-data "theme.json;." --add-data "theme-dark.json;." --add-data "logo.ico;." run.py
-      - name: Copy config
+          python -m PyInstaller --noconfirm --onedir --windowed --icon="logo.ico" --name="abcdef-editor" $env:EXCLUDE_MODULES --add-data "main.qml;." --add-data "iAWriterDuoV.ttf;." --add-data "logo.ico;." run.py
+      - name: Copy config and themes
         run: |
           Copy-Item settings.json dist/abcdef-editor/settings.json -Force
+          Copy-Item theme.json dist/abcdef-editor/theme.json -Force
+          Copy-Item theme-dark.json dist/abcdef-editor/theme-dark.json -Force
       - name: Create ZIP
         run: |
           Compress-Archive -Path dist/abcdef-editor -DestinationPath abcdef-editor-windows.zip
@@ -53,8 +55,10 @@ jobs:
           pip install PySide6 pyinstaller
       - name: Build Linux
         run: |
-          pyinstaller --noconfirm --onedir --windowed --name="abcdef-editor" $EXCLUDE_MODULES --add-data "main.qml:." --add-data "iAWriterDuoV.ttf:." --add-data "theme.json:." --add-data "theme-dark.json:." --add-data "logo.png:." run.py
+          pyinstaller --noconfirm --onedir --windowed --name="abcdef-editor" $EXCLUDE_MODULES --add-data "main.qml:." --add-data "iAWriterDuoV.ttf:." --add-data "logo.png:." run.py
           cp settings.json dist/abcdef-editor/settings.json
+          cp theme.json dist/abcdef-editor/theme.json
+          cp theme-dark.json dist/abcdef-editor/theme-dark.json
       - name: Prepare AppDir
         run: |
           mkdir -p AppDir/usr/bin
@@ -102,10 +106,12 @@ jobs:
           pip install PySide6 pyinstaller
       - name: Build macOS
         run: |
-          pyinstaller --noconfirm --onedir --windowed --name="abcdef-editor" $EXCLUDE_MODULES --add-data "main.qml:." --add-data "iAWriterDuoV.ttf:." --add-data "theme.json:." --add-data "theme-dark.json:." --add-data "logo.png:." run.py
+          pyinstaller --noconfirm --onedir --windowed --name="abcdef-editor" $EXCLUDE_MODULES --add-data "main.qml:." --add-data "iAWriterDuoV.ttf:." --add-data "logo.png:." run.py
           # УДАЛЯЕМ ЛИШНЕЕ на macOS
           rm -rf dist/abcdef-editor.app/Contents/Frameworks/QtWebEngine*
           cp settings.json dist/abcdef-editor/settings.json || true
+          cp theme.json dist/abcdef-editor/theme.json || true
+          cp theme-dark.json dist/abcdef-editor/theme-dark.json || true
       - name: Create ZIP
         run: |
           cd dist
