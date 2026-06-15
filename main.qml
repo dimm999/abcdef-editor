@@ -286,7 +286,7 @@ ApplicationWindow {
                 }
 
                 Text {
-                    text: "v1.0.5"
+                    text: "v1.0.6"
                     font.family: iaWriterLoader.name
                     font.pixelSize: 11
                     color: theme.helpDialog ? theme.helpDialog.descriptionColor : "#475569"
@@ -452,6 +452,8 @@ ApplicationWindow {
         anchors.bottomMargin: 40
         clip: true
 
+        contentWidth: availableWidth
+
         ScrollBar.vertical: ScrollBar {
             policy: ScrollBar.AlwaysOff
         }
@@ -467,7 +469,8 @@ ApplicationWindow {
             textFormat: TextEdit.PlainText
             wrapMode: TextEdit.Wrap
             selectByMouse: true
-            
+
+
             selectionColor: theme.editor ? theme.editor.selectionColor : "#C2E8FF"
             selectedTextColor: theme.editor ? theme.editor.selectedTextColor : "#1A1A1A"
 
