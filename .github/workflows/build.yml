@@ -10,9 +10,10 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # Список модулей для исключения (экономит до 100МБ)
+  EXCLUDE_MODULES: "--exclude-module PySide6.QtWebEngine --exclude-module PySide6.QtWebEngineCore --exclude-module PySide6.QtWebEngineWidgets --exclude-module PySide6.QtMultimedia --exclude-module PySide6.QtMultimediaWidgets --exclude-module PySide6.QtCharts --exclude-module PySide6.QtDataVisualization --exclude-module PySide6.QtNetworkAuth --exclude-module PySide6.QtRemoteObjects --exclude-module PySide6.QtSensors --exclude-module PySide6.QtSerialPort --exclude-module PySide6.QtXml"
 
 jobs:
-  # ================= БЛОК СБОРКИ ПОД WINDOWS =================
   build-windows:
     runs-on: windows-latest
     steps:
@@ -25,9 +26,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install PySide6 pyinstaller
       - name: Build Windows
-        # Используем вызов pyinstaller как команду, передавая аргументы списком, чтобы PowerShell не тупил
         run: |
-          python -m PyInstaller --noconfirm --onedir --windowed --icon="logo.ico" --name="abcdef-editor" --add-data "main.qml;." --add-data "iAWriterDuoV.ttf;." --add-data "theme.json;." --add-data "theme-dark.json;." --add-data "logo.ico;." run.py
+          python -m PyInstaller --noconfirm --onedir --windowed --icon="logo.ico" --name="abcdef-editor" %EXCLUDE_MODULES% --add-data "main.qml;." --add-data "iAWriterDuoV.ttf;." --add-data "theme.json;." --add-data "theme-dark.json;." --add-data "logo.ico;." run.py
       - name: Copy config
         run: |
           Copy-Item settings.json dist/abcdef-editor/settings.json -Force
@@ -40,7 +40,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # ================= БЛОК СБОРКИ ПОД LINUX (AppImage) =================
   build-linux:
     runs-on: ubuntu-latest
     steps:
@@ -54,7 +53,7 @@ jobs:
           pip install PySide6 pyinstaller
       - name: Build Linux
         run: |
-          pyinstaller --noconfirm --onedir --windowed --name="abcdef-editor" --add-data "main.qml:." --add-data "iAWriterDuoV.ttf:." --add-data "theme.json:." --add-data "theme-dark.json:." --add-data "logo.png:." run.py
+          pyinstaller --noconfirm --onedir --windowed --name="abcdef-editor" $EXCLUDE_MODULES --add-data "main.qml:." --add-data "iAWriterDuoV.ttf:." --add-data "theme.json:." --add-data "theme-dark.json:." --add-data "logo.png:." run.py
           cp settings.json dist/abcdef-editor/settings.json
       - name: Prepare AppDir
         run: |
@@ -90,7 +89,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # ================= БЛОК СБОРКИ ПОД MACOS =================
   build-macos:
     runs-on: macos-latest
     steps:
@@ -104,7 +102,9 @@ jobs:
           pip install PySide6 pyinstaller
       - name: Build macOS
         run: |
-          pyinstaller --noconfirm --onedir --windowed --name="abcdef-editor" --add-data "main.qml:." --add-data "iAWriterDuoV.ttf:." --add-data "theme.json:." --add-data "theme-dark.json:." --add-data "logo.png:." run.py
+          pyinstaller --noconfirm --onedir --windowed --name="abcdef-editor" $EXCLUDE_MODULES --add-data "main.qml:." --add-data "iAWriterDuoV.ttf:." --add-data "theme.json:." --add-data "theme-dark.json:." --add-data "logo.png:." run.py
+          # УДАЛЯЕМ ЛИШНЕЕ на macOS
+          rm -rf dist/abcdef-editor.app/Contents/Frameworks/QtWebEngine*
           cp settings.json dist/abcdef-editor/settings.json || true
       - name: Create ZIP
         run: |
