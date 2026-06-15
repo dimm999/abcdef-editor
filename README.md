@@ -21,9 +21,9 @@ Perfection through subtraction. An ultra-minimalist, distraction-free text edito
 
 Here is a quick look at the command palette navigation and smooth workflow:
 
-![abcdef editor Workflow Demo](assets/demo.gif)
+<video src="./assets/light.mp4" controls width="100%"></video>
 
-*(Alternatively, you can watch the high-quality video demonstration in `assets/presentation.mp4`)*
+<video src="./assets/dark.mp4" controls width="100%"></video>
 
 ---
 
