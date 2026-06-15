@@ -26,18 +26,7 @@ jobs:
 
       - name: Build Windows
         run: |
-          pyinstaller ^
-            --noconfirm ^
-            --onedir ^
-            --windowed ^
-            --icon="logo.ico" ^
-            --name="abcdef-editor" ^
-            --add-data "main.qml;." ^
-            --add-data "iAWriterDuoV.ttf;." ^
-            --add-data "theme.json;." ^
-            --add-data "theme-dark.json;." ^
-            --add-data "logo.ico;." ^
-            run.py
+          pyinstaller --noconfirm --onedir --windowed --icon="logo.ico" --name="abcdef-editor" --add-data "main.qml;." --add-data "iAWriterDuoV.ttf;." --add-data "theme.json;." --add-data "theme-dark.json;." --add-data "logo.ico;." run.py
 
       - name: Copy config
         run: |
@@ -111,14 +100,10 @@ jobs:
 
       - name: Generate AppImage
         run: |
-          # Скачиваем СВЕЖИЙ рабочий инструмент из нового репозитория AppImage
           wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
           chmod +x appimagetool
           
-          # Распаковываем его, чтобы запустить без требований FUSE от Линукса
           ./appimagetool --appimage-extract
-          
-          # Собираем финальный пакет через извлеченный бинарник
           ./squashfs-root/AppRun AppDir abcdef-editor-linux.AppImage
 
       - uses: softprops/action-gh-release@v2

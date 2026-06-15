@@ -286,7 +286,7 @@ ApplicationWindow {
                 }
 
                 Text {
-                    text: "v1.0.10"
+                    text: "v1.0.11"
                     font.family: iaWriterLoader.name
                     font.pixelSize: 11
                     color: theme.helpDialog ? theme.helpDialog.descriptionColor : "#475569"
