@@ -3,9 +3,8 @@ name: Build and Release Alphas
 on:
   push:
     tags:
-      - 'v*' # Сработает, когда ты создашь тег, например v1.0.4
+      - 'v*'
 
-# Разрешаем роботам гитхаба загружать файлы в релизы
 permissions:
   contents: write
 
@@ -14,119 +13,154 @@ jobs:
   build-windows:
     runs-on: windows-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install PySide6 pyinstaller
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install PySide6 pyinstaller
 
-    - name: Build Windows App
-      run: |
-        pyinstaller --noconfirm --onedir --windowed --icon="logo.ico" --name="abcdef-editor" --add-data "main.qml;." --add-data "iAWriterDuoV.ttf;." --add-data "theme.json;." --add-data "theme-dark.json;." --add-data "logo.ico;." run.py
+      - name: Build Windows
+        run: |
+          pyinstaller ^
+            --noconfirm ^
+            --onedir ^
+            --windowed ^
+            --icon="logo.ico" ^
+            --name="abcdef-editor" ^
+            --add-data "main.qml;." ^
+            --add-data "iAWriterDuoV.ttf;." ^
+            --add-data "theme.json;." ^
+            --add-data "theme-dark.json;." ^
+            --add-data "logo.ico;." ^
+            run.py
 
-    - name: Copy Configs
-      run: |
-        Copy-Item "settings.json" "dist/abcdef-editor/settings.json" -Force
+      - name: Copy config
+        run: |
+          Copy-Item settings.json dist/abcdef-editor/settings.json -Force
 
-    - name: Create Windows ZIP
-      run: |
-        Compress-Archive -Path dist/abcdef-editor -DestinationPath abcdef-editor-windows.zip
+      - name: Create ZIP
+        run: |
+          Compress-Archive dist/abcdef-editor abcdef-editor-windows.zip
 
-    - name: Upload Windows Asset
-      uses: softprops/action-gh-release@v2
-      with:
-        files: abcdef-editor-windows.zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: abcdef-editor-windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # ================= БЛОК СБОРКИ ПОД LINUX (AppImage) =================
   build-linux:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install PySide6 pyinstaller
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install PySide6 pyinstaller
 
-    - name: Build Linux App
-      run: |
-        pyinstaller --noconfirm --onedir --windowed --name="abcdef-editor" --add-data "main.qml:." --add-data "iAWriterDuoV.ttf:." --add-data "theme.json:." --add-data "theme-dark.json:." --add-data "logo.ico:." run.py
-        cp settings.json dist/abcdef-editor/settings.json
+      - name: Build Linux
+        run: |
+          pyinstaller \
+            --noconfirm \
+            --onedir \
+            --windowed \
+            --name="abcdef-editor" \
+            --add-data "main.qml:." \
+            --add-data "iAWriterDuoV.ttf:." \
+            --add-data "theme.json:." \
+            --add-data "theme-dark.json:." \
+            --add-data "logo.png:." \
+            run.py
+          cp settings.json dist/abcdef-editor/settings.json
 
-    - name: Prepare AppDir Structure
-      run: |
-        mkdir -p AppDir/usr/bin
-        cp -r dist/abcdef-editor/* AppDir/usr/bin/
-        cp logo.ico AppDir/abcdef-editor.ico
-        
-        echo -e "[Desktop Entry]\nName=abcdef-editor\nExec=abcdef-editor\nIcon=abcdef-editor\nType=Application\nCategories=Utility;" > AppDir/abcdef-editor.desktop
-        ln -s abcdef-editor.ico AppDir/.DirIcon
+      - name: Prepare AppDir
+        run: |
+          mkdir -p AppDir/usr/bin
+          cp -r dist/abcdef-editor/* AppDir/usr/bin/
 
-    - name: Generate AppImage
-      run: |
-        # Скачиваем стабильный appimagetool
-        wget -q https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage -O appimagetool
-        chmod +x appimagetool
-        
-        # Переменная заставляет инструмент работать без FUSE прямо в памяти сервера
-        export APPIMAGE_EXTRACT_AND_RUN=1
-        
-        # Собираем готовый AppImage файл
-        ARCH=x86_64 ./appimagetool ./AppDir abcdef-editor-linux.AppImage
+          cat > AppDir/AppRun << 'EOF'
+          #!/bin/sh
+          HERE="$(dirname "$(readlink -f "$0")")"
+          exec "$HERE/usr/bin/abcdef-editor" "$@"
+          EOF
+          chmod +x AppDir/AppRun
 
-    - name: Upload Linux Asset
-      uses: softprops/action-gh-release@v2
-      with:
-        files: abcdef-editor-linux.AppImage
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Для Linux берем logo.png
+          cp logo.png AppDir/abcdef-editor.png
+          ln -sf abcdef-editor.png AppDir/.DirIcon
+
+          cat > AppDir/abcdef-editor.desktop << 'EOF'
+          [Desktop Entry]
+          Type=Application
+          Name=abcdef-editor
+          Exec=abcdef-editor
+          Icon=abcdef-editor
+          Categories=Utility;
+          Terminal=false
+          EOF
+          chmod +x AppDir/abcdef-editor.desktop
+
+      - name: Generate AppImage
+        run: |
+          wget -q https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage -O appimagetool
+          chmod +x appimagetool
+          
+          ./appimagetool --appimage-extract
+          ARCH=x86_64 ./squashfs-root/AppRun AppDir abcdef-editor-linux.AppImage
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: abcdef-editor-linux.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # ================= БЛОК СБОРКИ ПОД MACOS =================
   build-macos:
     runs-on: macos-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install PySide6 pyinstaller
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install PySide6 pyinstaller
 
-    - name: Build macOS App
-      run: |
-        pyinstaller --noconfirm --onedir --windowed --name="abcdef-editor" --add-data "main.qml:." --add-data "iAWriterDuoV.ttf:." --add-data "theme.json:." --add-data "theme-dark.json:." --add-data "logo.ico:." run.py
-        cp settings.json dist/abcdef-editor.app/Contents/Resources/ || true
-        cp settings.json dist/abcdef-editor/settings.json || true
+      - name: Build macOS
+        run: |
+          pyinstaller \
+            --noconfirm \
+            --onedir \
+            --windowed \
+            --name="abcdef-editor" \
+            --add-data "main.qml:." \
+            --add-data "iAWriterDuoV.ttf:." \
+            --add-data "theme.json:." \
+            --add-data "theme-dark.json:." \
+            --add-data "logo.png:." \
+            run.py
+          cp settings.json dist/abcdef-editor/settings.json || true
 
-    - name: Create macOS ZIP
-      run: |
-        cd dist
-        zip -r ../abcdef-editor-macos.zip abcdef-editor.app
+      - name: Create ZIP
+        run: |
+          cd dist
+          zip -r ../abcdef-editor-macos.zip abcdef-editor.app
 
-    - name: Upload macOS Asset
-      uses: softprops/action-gh-release@v2
-      with:
-        files: abcdef-editor-macos.zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: abcdef-editor-macos.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
