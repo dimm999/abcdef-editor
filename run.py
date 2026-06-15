@@ -29,10 +29,14 @@ class DocumentBackend(QObject):
         self.resource_path = get_resource_path()
         
         # Конфигурационные файлы и темы теперь ищутся строго в base_path (рядом с .exe файлом)
-        self.settings_path = os.path.join(self.base_path, "settings.json")
-        self.theme_path = os.path.join(self.base_path, "theme.json")
+        # self.settings_path = os.path.join(self.base_path, "settings.json")
+        # self.theme_path = os.path.join(self.base_path, "theme.json")
+        # self.theme = self.load_theme()
+        # self.working_dir = self.load_working_dir()
+
+        self.settings_path = os.path.join(self.base_path, "settings.json")        
+        self.working_dir = self.load_working_dir()        
         self.theme = self.load_theme()
-        self.working_dir = self.load_working_dir()
 
     def _url_to_path(self, file_url):
         if file_url.startswith("file:///"):

@@ -26,8 +26,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install PySide6 pyinstaller
       - name: Build Windows
+        shell: cmd
         run: |
-          python -m PyInstaller --noconfirm --onedir --windowed --icon="logo.ico" --name="abcdef-editor" $env:EXCLUDE_MODULES --add-data "main.qml;." --add-data "iAWriterDuoV.ttf;." --add-data "logo.ico;." run.py
+          python -m PyInstaller --noconfirm --onedir --windowed --icon="logo.ico" --name="abcdef-editor" %EXCLUDE_MODULES% --add-data "main.qml;." --add-data "iAWriterDuoV.ttf;." --add-data "logo.ico;." run.py
       - name: Copy config and themes
         run: |
           Copy-Item settings.json dist/abcdef-editor/settings.json -Force
