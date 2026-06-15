@@ -3,7 +3,11 @@ name: Build and Release Alphas
 on:
   push:
     tags:
-      - 'v*' # Сработает, когда ты создашь тег, например v0.1.0-alpha
+      - 'v*' # Сработает, когда ты создашь тег, например v1.0.4
+
+# КРИТИЧЕСКИ ВАЖНО: Разрешаем роботам гитхаба загружать файлы в релизы
+permissions:
+  contents: write
 
 jobs:
   # ================= БЛОК СБОРКИ ПОД WINDOWS =================
@@ -61,32 +65,29 @@ jobs:
 
     - name: Build Linux App
       run: |
-        # Обрати внимание: для Linux разделитель в --add-data это двоеточие (:) вместо точки с запятой (;)
         pyinstaller --noconfirm --onedir --windowed --name="abcdef-editor" --add-data "main.qml:." --add-data "iAWriterDuoV.ttf:." --add-data "theme.json:." --add-data "theme-dark.json:." --add-data "logo.ico:." run.py
         cp settings.json dist/abcdef-editor/settings.json
 
-    - name: Install AppImageBuilder
-      run: |
-        # Скачиваем официальную утилиту для создания AppImage из готовой папки (go-appimagetool)
-        wget -q https://github.com/probonopd/go-appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
-        chmod +x appimagetool
-
     - name: Prepare AppDir Structure
       run: |
-        # Для AppImage нужна минимальная структура: иконка и .desktop файл
         mkdir -p AppDir/usr/bin
         cp -r dist/abcdef-editor/* AppDir/usr/bin/
         cp logo.ico AppDir/abcdef-editor.ico
         
-        # Создаем простейший ярлык для Linux среды внутри AppImage
         echo -e "[Desktop Entry]\nName=abcdef-editor\nExec=abcdef-editor\nIcon=abcdef-editor\nType=Application\nCategories=Utility;" > AppDir/abcdef-editor.desktop
-        # Делаем симлинк на иконку (AppImage требует png/svg, попробуем скопировать иконку как заглушку, либо замени на реальный .png)
         ln -s abcdef-editor.ico AppDir/.DirIcon
 
-    - name: Generate AppImage
+    - name: Generate AppImage (Fix for exit code 8 / FUSE)
       run: |
-        # Собираем готовый AppImage файл
-        ARCH=x86_64 ./appimagetool ./AppDir abcdef-editor-linux.AppImage || true
+        # Используем официальный стабильный appimagetool вместо go-версии
+        wget -q https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage -O appimagetool
+        chmod +x appimagetool
+        
+        # Распаковываем инструмент, чтобы обойти отсутствие FUSE на сервере
+        ./appimagetool --appimage-extract
+        
+        # Собираем финальный AppImage файл через извлеченный бинарник
+        ARCH=x86_64 ./squashfs-root/AppRun ./AppDir abcdef-editor-linux.AppImage
 
     - name: Upload Linux Asset
       uses: softprops/action-gh-release@v2
@@ -114,14 +115,12 @@ jobs:
 
     - name: Build macOS App
       run: |
-        # Для Mac разделитель тоже двоеточие (:)
         pyinstaller --noconfirm --onedir --windowed --name="abcdef-editor" --add-data "main.qml:." --add-data "iAWriterDuoV.ttf:." --add-data "theme.json:." --add-data "theme-dark.json:." --add-data "logo.ico:." run.py
         cp settings.json dist/abcdef-editor.app/Contents/Resources/ || true
         cp settings.json dist/abcdef-editor/settings.json || true
 
     - name: Create macOS ZIP
       run: |
-        # Архивируем .app бандл
         cd dist
         zip -r ../abcdef-editor-macos.zip abcdef-editor.app
 
