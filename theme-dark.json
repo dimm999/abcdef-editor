@@ -1,0 +1,74 @@
+{
+    "window": {
+        "background": "#1a1b26",
+        "title": "abcdef editor"
+    },
+    "editor": {
+        "fontFamily": "iAWriterDuoV.ttf",
+        "fontSize": 18,
+        "fontWeight": 475,
+        "textColor": "#a9b1d6",
+        "selectionColor": "#515c7e",
+        "selectedTextColor": "#c0caf5",
+        "caretColor": "#c0caf5",
+        "caretWidth": 4,
+        "caretRadius": 2,
+        "placeholderColor": "#565f89"
+    },
+    "dialog": {
+        "background": "#16161e",
+        "borderColor": "#292e42",
+        "borderWidth": 1,
+        "borderRadius": 10,
+        "textColor": "#a9b1d6",
+        "padding": 24,
+        "footerBackground": "#1a1b26",
+        "buttonBackground": "#1e2030",
+        "buttonHoverBackground": "#292e42",
+        "buttonTextColor": "#a9b1d6",
+        "buttonBorderColor": "#292e42"
+    },
+    "helpDialog": {
+        "titleColor": "#c0caf5",
+        "titleFontSize": 16,
+        "titleFontWeight": 600,
+        "dividerColor": "#292e42",
+        "keyBadgeBackground": "#1e2030",
+        "keyBadgeBorderColor": "#292e42",
+        "keyBadgeBorderWidth": 1,
+        "keyBadgeBorderRadius": 5,
+        "keyBadgeHeight": 24,
+        "keyFontFamily": "Consolas",
+        "keyFontSize": 12,
+        "keyTextColor": "#7aa2f7",
+        "descriptionColor": "#787c99",
+        "descriptionFontSize": 13
+    },
+    "commandPalette": {
+        "background": "#16161e",
+        "borderColor": "#292e42",
+        "borderWidth": 1,
+        "borderRadius": 8,
+        "shadowColor": "#000000",
+        "promptColor": "#565f89",
+        "inputTextColor": "#c0caf5",
+        "placeholderColor": "#565f89",
+        "hoverColor": "#1e2030",
+        "fileNameColor": "#c0caf5",
+        "fileNameFontSize": 14,
+        "filePathColor": "#565f89",
+        "filePathFontSize": 11,
+        "noResultsColor": "#565f89"
+    },
+    "dropOverlay": {
+        "backgroundColor": "#1a1b26",
+        "backgroundOpacity": 0.92,
+        "borderColor": "#7aa2f7",
+        "borderWidth": 3,
+        "titleColor": "#c0caf5",
+        "titleFontSize": 18,
+        "subtitleColor": "#565f89",
+        "subtitleFontSize": 14,
+        "iconFontSize": 48
+    }
+}
