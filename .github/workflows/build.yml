@@ -5,7 +5,7 @@ on:
     tags:
       - 'v*' # Сработает, когда ты создашь тег, например v1.0.4
 
-# КРИТИЧЕСКИ ВАЖНО: Разрешаем роботам гитхаба загружать файлы в релизы
+# Разрешаем роботам гитхаба загружать файлы в релизы
 permissions:
   contents: write
 
@@ -77,17 +77,17 @@ jobs:
         echo -e "[Desktop Entry]\nName=abcdef-editor\nExec=abcdef-editor\nIcon=abcdef-editor\nType=Application\nCategories=Utility;" > AppDir/abcdef-editor.desktop
         ln -s abcdef-editor.ico AppDir/.DirIcon
 
-    - name: Generate AppImage (Fix for exit code 8 / FUSE)
+    - name: Generate AppImage
       run: |
-        # Используем официальный стабильный appimagetool вместо go-версии
+        # Скачиваем стабильный appimagetool
         wget -q https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage -O appimagetool
         chmod +x appimagetool
         
-        # Распаковываем инструмент, чтобы обойти отсутствие FUSE на сервере
-        ./appimagetool --appimage-extract
+        # Переменная заставляет инструмент работать без FUSE прямо в памяти сервера
+        export APPIMAGE_EXTRACT_AND_RUN=1
         
-        # Собираем финальный AppImage файл через извлеченный бинарник
-        ARCH=x86_64 ./squashfs-root/AppRun ./AppDir abcdef-editor-linux.AppImage
+        # Собираем готовый AppImage файл
+        ARCH=x86_64 ./appimagetool ./AppDir abcdef-editor-linux.AppImage
 
     - name: Upload Linux Asset
       uses: softprops/action-gh-release@v2
