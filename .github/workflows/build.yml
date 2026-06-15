@@ -1,0 +1,133 @@
+name: Build and Release Alphas
+
+on:
+  push:
+    tags:
+      - 'v*' # Сработает, когда ты создашь тег, например v0.1.0-alpha
+
+jobs:
+  # ================= БЛОК СБОРКИ ПОД WINDOWS =================
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install PySide6 pyinstaller
+
+    - name: Build Windows App
+      run: |
+        pyinstaller --noconfirm --onedir --windowed --icon="logo.ico" --name="abcdef-editor" --add-data "main.qml;." --add-data "iAWriterDuoV.ttf;." --add-data "theme.json;." --add-data "theme-dark.json;." --add-data "logo.ico;." run.py
+
+    - name: Copy Configs
+      run: |
+        Copy-Item "settings.json" "dist/abcdef-editor/settings.json" -Force
+
+    - name: Create Windows ZIP
+      run: |
+        Compress-Archive -Path dist/abcdef-editor -DestinationPath abcdef-editor-windows.zip
+
+    - name: Upload Windows Asset
+      uses: softprops/action-gh-release@v2
+      with:
+        files: abcdef-editor-windows.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ================= БЛОК СБОРКИ ПОД LINUX (AppImage) =================
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install PySide6 pyinstaller
+
+    - name: Build Linux App
+      run: |
+        # Обрати внимание: для Linux разделитель в --add-data это двоеточие (:) вместо точки с запятой (;)
+        pyinstaller --noconfirm --onedir --windowed --name="abcdef-editor" --add-data "main.qml:." --add-data "iAWriterDuoV.ttf:." --add-data "theme.json:." --add-data "theme-dark.json:." --add-data "logo.ico:." run.py
+        cp settings.json dist/abcdef-editor/settings.json
+
+    - name: Install AppImageBuilder
+      run: |
+        # Скачиваем официальную утилиту для создания AppImage из готовой папки (go-appimagetool)
+        wget -q https://github.com/probonopd/go-appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+        chmod +x appimagetool
+
+    - name: Prepare AppDir Structure
+      run: |
+        # Для AppImage нужна минимальная структура: иконка и .desktop файл
+        mkdir -p AppDir/usr/bin
+        cp -r dist/abcdef-editor/* AppDir/usr/bin/
+        cp logo.ico AppDir/abcdef-editor.ico
+        
+        # Создаем простейший ярлык для Linux среды внутри AppImage
+        echo -e "[Desktop Entry]\nName=abcdef-editor\nExec=abcdef-editor\nIcon=abcdef-editor\nType=Application\nCategories=Utility;" > AppDir/abcdef-editor.desktop
+        # Делаем симлинк на иконку (AppImage требует png/svg, попробуем скопировать иконку как заглушку, либо замени на реальный .png)
+        ln -s abcdef-editor.ico AppDir/.DirIcon
+
+    - name: Generate AppImage
+      run: |
+        # Собираем готовый AppImage файл
+        ARCH=x86_64 ./appimagetool ./AppDir abcdef-editor-linux.AppImage || true
+
+    - name: Upload Linux Asset
+      uses: softprops/action-gh-release@v2
+      with:
+        files: abcdef-editor-linux.AppImage
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ================= БЛОК СБОРКИ ПОД MACOS =================
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install PySide6 pyinstaller
+
+    - name: Build macOS App
+      run: |
+        # Для Mac разделитель тоже двоеточие (:)
+        pyinstaller --noconfirm --onedir --windowed --name="abcdef-editor" --add-data "main.qml:." --add-data "iAWriterDuoV.ttf:." --add-data "theme.json:." --add-data "theme-dark.json:." --add-data "logo.ico:." run.py
+        cp settings.json dist/abcdef-editor.app/Contents/Resources/ || true
+        cp settings.json dist/abcdef-editor/settings.json || true
+
+    - name: Create macOS ZIP
+      run: |
+        # Архивируем .app бандл
+        cd dist
+        zip -r ../abcdef-editor-macos.zip abcdef-editor.app
+
+    - name: Upload macOS Asset
+      uses: softprops/action-gh-release@v2
+      with:
+        files: abcdef-editor-macos.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
