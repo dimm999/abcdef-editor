@@ -1,3 +1,7 @@
+
+
+
+
 # abcdef editor
 
 Perfection through subtraction. An ultra-minimalist, distraction-free text editor designed for raw writing, deep focus, and seamless ideas drafting.
@@ -21,9 +25,9 @@ Perfection through subtraction. An ultra-minimalist, distraction-free text edito
 
 Here is a quick look at the command palette navigation and smooth workflow:
 
-<video src="./assets/light.mp4" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/dcb24a1d-41e8-4ae0-baca-5b8389e9c39c" controls width="100%"></video>
 
-<video src="./assets/dark.mp4" controls width="100%"></video>
+<video src="https://github.com/user-attachments/assets/143b5d2a-4620-4fc9-8552-2109043ef6cb" controls width="100%"></video>
 
 ---
 
