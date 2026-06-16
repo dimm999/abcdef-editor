@@ -42,7 +42,7 @@ The editor is built to be entirely keyboard-driven. Below is the complete list o
 | **Ctrl + N** | New document |
 | **Ctrl + S** | Save file |
 | **Ctrl + Q** / **Ctrl + W** | Quit application |
-| **Ctrl + \** / **Ctrl + P** | Toggle command palette |
+| **Ctrl + \\** / **Ctrl + P** | Toggle command palette |
 | **Alt + Enter** | Toggle fullscreen mode |
 | **F1** | Show help dialog |
 | | |
