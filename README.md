@@ -1,10 +1,8 @@
-
-
-
-
 # abcdef editor
 
 Perfection through subtraction. An ultra-minimalist, distraction-free text editor designed for raw writing, deep focus, and seamless ideas drafting.
+
+![abcdef editor Logo](assets/logo.png)
 
 ![abcdef editor Main Screenshot](assets/1.png)
 ![abcdef editor Main Screenshot](assets/2.png)
@@ -12,6 +10,24 @@ Perfection through subtraction. An ultra-minimalist, distraction-free text edito
 ## Philosophy
 
 `abcdef editor` removes all the digital noise between your mind and the screen. There are no toolbars, no sidebars, and no hidden menus. It is a locked-environment editor tied to a single working directory, allowing you to instantly navigate your files via a keyboard-driven command palette. You write in a pure, sterile environment, and when your raw drafting is finished, you can easily move your text anywhere else.
+
+---
+
+## Our Promise
+
+**abcdef editor will remain ultra-minimalist forever.**
+
+We will never turn it into "yet another feature-rich editor".  
+We consciously refuse to add markdown preview, plugins, cloud sync, statistics, AI features, or complex formatting.
+
+This editor is for people who want **less**, not more.
+
+If you came here for pure focus and raw writing — you can be sure we will never betray that love. Even in 10 or 20 years, `abcdef editor` will stay simple, clean, and distraction-free.
+
+More advanced features will be developed in a **separate future project**.  
+`abcdef editor` will always remain the pure version.
+
+---
 
 ## Features
 
@@ -53,5 +69,3 @@ The editor is built to be entirely keyboard-driven. Below is the complete list o
 | **Ctrl + Alt + =** | Widen editor width *(fullscreen only)* |
 | **Ctrl + Alt + -** | Narrow editor width *(fullscreen only)* |
 | **Ctrl + Alt + 0** | Reset editor width to default *(fullscreen only)* |
-
----
