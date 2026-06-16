@@ -6,7 +6,8 @@
 
 Perfection through subtraction. An ultra-minimalist, distraction-free text editor designed for raw writing, deep focus, and seamless ideas drafting.
 
-![abcdef editor Main Screenshot](assets/screenshot_main.png)
+![abcdef editor Main Screenshot](assets/1.png)
+![abcdef editor Main Screenshot](assets/2.png)
 
 ## Philosophy
 
